@@ -1,4 +1,3 @@
-# main.py
 from controller.controller import app
 from Config.databse import init_db
 
