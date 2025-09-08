@@ -1,12 +1,12 @@
-# Config/database.py
-import os
-from contextlib import contextmanager
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
+from Config.base import Base
+import os
+from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from model.model import Song  
 
-Base = declarative_base()
+
 
 def _make_engine(db_url: str):
     # Para SQLite se necesita connect_args para hilos; para Postgres no.
@@ -45,18 +45,3 @@ def init_db():
     """
    
     Base.metadata.create_all(bind=engine)
-
-@contextmanager
-def get_session():
-    """
-    Context manager seguro para sesiones en capas que no son Flask.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()

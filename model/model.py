@@ -1,6 +1,6 @@
 # model/model.py
 from sqlalchemy import Column, Integer, String, UniqueConstraint
-from Config.databse import Base
+from Config.base import Base
 
 class Song(Base):
     __tablename__ = "songs"

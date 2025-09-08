@@ -34,12 +34,20 @@ def remove_session(exception=None):
 def list_songs():
     svc, session = service_with_session()
     try:
-        q = request.args.get("q")
+        id = request.args.get("id")
         name = request.args.get("name")
         album = request.args.get("album")
-        songs = svc.list(q=q, name=name, album=album)
+        
+        # Convertir id a int si existe
+        if id is not None:
+            id = int(id)
+            
+        songs = svc.list(id=id, name=name, album=album)
         session.commit()
         return jsonify([s.to_dict() for s in songs]), 200
+    except ValueError as e:
+        session.rollback()
+        return jsonify({"error": f"ID inválido: {str(e)}"}), 400
     finally:
         session.close()
 
@@ -114,6 +122,6 @@ def delete_song(song_id: int):
     finally:
         session.close()
 
-# Ejecución local:
-# if __name__ == "__main__":
-#     app.run(debug=True)
+#Ejecución local:
+if __name__ == "__main__":
+    app.run(debug=True)

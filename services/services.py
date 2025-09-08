@@ -25,10 +25,10 @@ class SongService:
         if year < 1900 or year > 2100:
             raise ValidationError("El año debe estar entre 1900 y 2100.")
 
-    def list(self, q: Optional[str] = None, name: Optional[str] = None,
+    def list(self, id: Optional[int] = None, name: Optional[str] = None,
              album: Optional[str] = None) -> List[Song]:
-        if q:
-            return self.repo.search(q)
+        if id:
+            return self.repo.search(id)
         if name:
             return self.repo.find_by_name(name)
         if album:
