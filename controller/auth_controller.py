@@ -1,6 +1,6 @@
 # controller/auth_controller.py
 from flask import Blueprint, request, jsonify
-from Config.database import SessionLocal
+from Config.databse import SessionLocal
 from repository.user_repository import UserRepository
 from services.auth_service import AuthService
 
