@@ -15,7 +15,7 @@ def _make_engine(db_url: str):
 
 def get_engine():
     """
-    Intenta conectarse a Supabase (variable de entorno SUPABASE_DB_URL).
+    Intenta conectar a railway
     Si falla, hace fallback a SQLite local.
     """
     supabase_url = os.getenv("SUPABASE_DB_URL", "").strip()
@@ -25,10 +25,10 @@ def get_engine():
             # Probar conexión
             with engine.connect() as conn:
                 conn.exec_driver_sql("SELECT 1;")
-            print("[DB] Conectado a Supabase/Postgres.")
+            print("[DB] Conectado a railway.")
             return engine
         except OperationalError as e:
-            print(f"[DB] No fue posible conectar a Supabase. Fallback a SQLite. Detalle: {e}")
+            print(f"[DB] No fue posible conectar a railway. Fallback a SQLite. Detalle: {e}")
 
     sqlite_url = os.getenv("SQLITE_DB_URL", "sqlite:///queenmusic.db")
     engine = _make_engine(sqlite_url)
