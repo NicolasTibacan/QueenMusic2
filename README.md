@@ -1,170 +1,97 @@
-# QueenMusic2
-📂 Documentación de la Arquitectura
-📁 Config/
+# 🎶 API REST — Música de Queen (con Autenticación JWT)
+🧩 Descripción General
 
-Propósito: Manejo de configuración y conexión a la base de datos.
+Esta API ofrece información musical sobre la legendaria banda Queen, permitiendo acceder a los álbumes, años de lanzamiento y canciones, protegida mediante un sistema de autenticación por tokens JWT (JSON Web Token).
 
-__init__.py
-Archivo vacío para declarar el paquete Python.
+Los usuarios deben autenticarse para consultar los recursos disponibles.
+Los tokens tienen una validez de 3 horas.
 
-database.py
+Esta API utiliza una base de datos SQLite para almacenar la información musical y los usuarios registrados, ofreciendo un entorno ligero, rápido y fácil de desplegar.
+Su estructura modular separa claramente la lógica de autenticación, las rutas de usuarios, las rutas de música y la configuración de la base de datos, lo que la convierte en una base sólida para proyectos educativos o de portafolio orientados al desarrollo de servicios REST seguros y bien estructurados.
+📁 Descripción Detallada de Carpetas y Archivos
+🔧 Config/
 
-Se encarga de crear la conexión a la base de datos.
+db.py
+Este archivo configura la conexión a la base de datos SQLite y crea una sesión de SQLAlchemy.
+Define la dependencia get_db() que permite acceder a la base de datos desde los controladores.
 
-Intenta conectarse primero a Supabase/Postgres usando la variable de entorno SUPABASE_DB_URL.
+# 🎮 controller/
 
-Si falla, hace fallback a una base local SQLite (queenmusic.db).
+music_controller.py
+Define las rutas (endpoints) de la API.
+Aquí se controlan las solicitudes HTTP y se conectan con las funciones del repository o services.
 
-Define:
+Ejemplos de endpoints:
 
-Base: clase base de SQLAlchemy para modelos.
+GET /songs → Lista todas las canciones.
 
-engine: motor de conexión.
+GET /songs/{id} → Devuelve una canción por su ID.
 
-SessionLocal: creador de sesiones.
+POST /songs → Agrega una nueva canción (requiere token JWT).
 
-init_db(): inicializa las tablas.
+POST /login → Autentica al usuario y genera un token.
 
-get_session(): context manager para manejar sesiones.
+Cada endpoint está documentado y validado mediante Pydantic Schemas para asegurar integridad en los datos.
 
-📁 model/
+# 🎵 model/
 
-Propósito: Representación de las entidades/tablas de la base de datos.
+queen_models.py
+Contiene las clases que representan las tablas de la base de datos:
 
-__init__.py
-Archivo vacío.
+User: almacena usuarios registrados y contraseñas encriptadas.
 
-model.py
+Song: contiene información de las canciones (título, álbum, año).
 
-Contiene la clase Song, que representa la tabla songs.
+Usa SQLAlchemy para definir relaciones y tipos de datos, facilitando la manipulación ORM (sin escribir SQL manual).
 
-Campos:
+# 🧠 repository/
 
-id (Primary Key)
+music_repository.py
+Es la capa encargada de interactuar directamente con la base de datos.
+Implementa funciones CRUD:
 
-name (Nombre de la canción)
+Crear una nueva canción
 
-album (Nombre del álbum)
+Listar todas las canciones
 
-year (Año de publicación)
+Buscar por ID o nombre
 
-Incluye restricción de unicidad (name+album).
+Actualizar y eliminar registros
 
-Tiene un método to_dict() para serializar la entidad en JSON.
+Esta capa aísla la lógica de persistencia, permitiendo mantener los controladores ligeros y más fáciles de probar.
 
-📁 repository/
+# 🔐 services/
 
-Propósito: Capa de acceso a datos.
-Implementa consultas y operaciones CRUD sobre los modelos usando SQLAlchemy (ORM).
+auth_service.py
+Gestiona todo lo relacionado con autenticación y seguridad:
 
-__init__.py
-Archivo vacío.
+Validación de credenciales
 
-repository.py
+Encriptación de contraseñas
 
-Clase SongRepository:
+Generación de tokens JWT con expiración de 3 horas
 
-Lecturas:
+Decodificación y verificación de tokens para proteger rutas privadas
 
-get_all() → trae todas las canciones.
+Usa la librería passlib para proteger contraseñas y jwt (o jose) para emitir tokens seguros.
 
-get_by_id() → busca por ID.
+🚀 main.py
 
-find_by_name() → busca por nombre parcial.
+Archivo principal que inicia el servidor FastAPI.
 
-find_by_album() → busca por álbum parcial.
+Importa y registra los controladores (rutas).
 
-search() → búsqueda genérica por nombre o álbum.
+Conecta con la base de datos y prepara la documentación automática de la API
+# 🧠 Conclusión
 
-Escrituras:
+Esta API te permite:
 
-create() → crea un registro nuevo.
+Autenticar usuarios mediante JWT
 
-update() → actualiza datos de una canción existente.
+Consultar y agregar canciones de Queen
 
-delete() → elimina una canción.
+Controlar acceso seguro a recursos
 
-📁 services/
+Integrar un backend ligero con base de datos local
 
-Propósito: Lógica de negocio.
-Usa el repositorio para aplicar reglas y validaciones antes de tocar la base de datos.
-
-__init__.py
-Archivo vacío.
-
-services.py
-
-Excepciones:
-
-ValidationError → errores de reglas de negocio.
-
-NotFoundError → cuando un registro no existe.
-
-Clase SongService:
-
-Valida que los campos sean correctos.
-
-Evita duplicados (name+album).
-
-Métodos:
-
-list() → listar con filtros.
-
-get() → obtener una canción.
-
-create() → crear con validación.
-
-update() → actualizar si existe.
-
-delete() → eliminar si existe.
-
-📁 controller/
-
-Propósito: Capa de presentación (API HTTP).
-Define endpoints REST usando Flask.
-
-__init__.py
-Archivo vacío.
-
-controller.py
-
-Define el objeto Flask app.
-
-Rutas:
-
-GET /songs → lista canciones (filtros: q, name, album).
-
-GET /songs/<id> → obtiene canción por ID.
-
-POST /songs → crea canción.
-
-PUT/PATCH /songs/<id> → actualiza canción.
-
-DELETE /songs/<id> → elimina canción.
-
-Maneja excepciones (ValidationError, NotFoundError).
-
-app.py (si decides mantenerlo aquí)
-
-Punto de entrada para correr la API.
-
-Inicializa la BD y arranca Flask en localhost:5000.
-
-📂 Raíz del proyecto
-
-README.md
-Documentación general de la API, cómo instalar dependencias, variables de entorno, y cómo ejecutar.
-
-requirements.txt
-Lista de dependencias:
-
-flask
-
-sqlalchemy
-
-psycopg2-binary (para Postgres/Supabase)
-
-python-dotenv (opcional, si usas .env).
-
-main.py (opcional)
-Alternativa a app.py como punto de entrada principal del proyecto.
+Ideal para proyectos educativos, portafolios de desarrolladores o prácticas de autenticación con Python y FastAPI.
